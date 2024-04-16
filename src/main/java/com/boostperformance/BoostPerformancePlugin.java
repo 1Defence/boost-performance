@@ -48,6 +48,8 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.concurrent.*;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 
 @Slf4j
@@ -83,6 +85,9 @@ public class BoostPerformancePlugin extends Plugin
 
 	final int SECONDS_FOR_GOOD_ESTIMATE = 1200;
 	private final String BOSS_DATA_URL = "https://1defence.github.io/resources/data.json";
+	String KC_REGEX = "^Your (.+?) kill count is";
+	Pattern KC_REGEX_PATTERN = Pattern.compile(KC_REGEX);
+
 	private ExecutorService bossDataExecutorService;
 	BossDataJson[] fetchedData = null;
 
@@ -777,10 +782,18 @@ public class BoostPerformancePlugin extends Plugin
 		{
 			if (event.getMessage().contains("kill count is"))
 			{
-				if (!config.isMain())
-				{
-					//account has sniped..
-					SendSnipe();
+				Matcher matcher = KC_REGEX_PATTERN.matcher(event.getMessage());
+				if (matcher.find()){
+					String nameOfBoss = matcher.group(1);
+					int finalIDOfBoss = BossData.FindBossIDByName(nameOfBoss);
+					if(finalIDOfBoss != -1)
+					{
+						SendBossDeath(client.getWorld(), nameOfBoss, finalIDOfBoss);
+						if (!config.isMain())
+						{
+							SendSnipe();
+						}
+					}
 				}
 			}
 
