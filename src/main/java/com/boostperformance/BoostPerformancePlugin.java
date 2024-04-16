@@ -204,19 +204,6 @@ public class BoostPerformancePlugin extends Plugin
 	}
 
 	/**
-	 * Party member joined, add to list of tracked members
-	 */
-	@Subscribe
-	public void onStatusUpdate(final StatusUpdate event)
-	{
-		String name = event.getCharacterName();
-		if (name != null && !name.isEmpty())
-		{
-			partyMembers.put(event.getMemberId(),event.getCharacterName());
-		}
-	}
-
-	/**
 	 * Update personal best kill
 	 * returns boolean indicating whether or not the passed killspeed is the new personal best
 	 */
