@@ -31,6 +31,8 @@ enum BossData
     private static final Map<Integer, BossData> spawnFormBosses;
     private static final Map<Integer, BossData> finalFormBosses;
 
+    private static final Set<Integer> midKillBossSpawns = Set.of(NpcID.ABYSSAL_SIRE_5887, NpcID.ABYSSAL_SIRE_5888, NpcID.ABYSSAL_SIRE_5889,NpcID.ABYSSAL_SIRE_5890,NpcID.ABYSSAL_SIRE_5891, NpcID.ABYSSAL_SIRE_5908);
+
     private final int spawnFormId;
     private final int finalFormId;
 
@@ -125,6 +127,13 @@ enum BossData
      */
     public static boolean IsValidBossSpawn(NPC npc){
         return FindSpawnForm(npc.getId()) != null;
+    }
+
+    /**
+     * In the case of the users first spawn event being a mid-kill boss, mostly applies to sire when using a vent-killer
+     */
+    public static boolean IsMidKillBossSpawn(NPC npc){
+        return (midKillBossSpawns.contains(npc.getId()));
     }
     /**
      * Set EHB of a bosses spawn and final forms

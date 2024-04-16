@@ -296,6 +296,19 @@ public class BoostPerformancePlugin extends Plugin
 		}
 	}
 	/**
+	 * Convenience function to send a game message when user-error occurs
+	 */
+	void SendErrorGameMessage(String contents){
+			String message = new ChatMessageBuilder()
+					.append(BAD_HIGHLIGHT,contents)
+					.build();
+			chatMessageManager.queue(QueuedMessage.builder()
+					.type(ChatMessageType.CONSOLE)
+					.runeLiteFormattedMessage(message)
+					.build());
+	}
+
+	/**
 	 * Add current to overall stored data
 	 * Reset current data and update panel
 	 */
@@ -719,7 +732,12 @@ public class BoostPerformancePlugin extends Plugin
 			return;
 
 		if(!BossData.IsValidBossSpawn(npc))
+		{
+			if(BossData.IsMidKillBossSpawn(npc)){
+				SendErrorGameMessage("Warning, the spawn viewed was mid kill and won't count. in the case of Sire ensure your vent-killer or any viewer has this plugin enabled and is in your party.");
+			}
 			return;
+		}
 
 		if(!ShouldSendPacket(npc))
 			return;
