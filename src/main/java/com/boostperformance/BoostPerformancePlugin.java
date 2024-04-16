@@ -1,5 +1,6 @@
 package com.boostperformance;
 
+import com.boostperformance.messages.BoostPerformanceMemberUpdate;
 import com.boostperformance.messages.BoostPerformanceDespawnUpdate;
 import com.boostperformance.messages.BoostPerformanceSnipeUpdate;
 import com.boostperformance.messages.BoostPerformanceSpawnUpdate;
@@ -22,12 +23,13 @@ import net.runelite.client.config.ConfigManager;
 import net.runelite.client.eventbus.Subscribe;
 import net.runelite.client.events.ConfigChanged;
 import net.runelite.client.events.PartyChanged;
+import net.runelite.client.events.RuneScapeProfileChanged;
 import net.runelite.client.party.PartyService;
 import net.runelite.client.party.WSClient;
+import net.runelite.client.party.events.UserJoin;
 import net.runelite.client.party.events.UserPart;
 import net.runelite.client.plugins.Plugin;
 import net.runelite.client.plugins.PluginDescriptor;
-import net.runelite.client.plugins.party.messages.StatusUpdate;
 import net.runelite.client.ui.ClientToolbar;
 import net.runelite.client.ui.NavigationButton;
 import net.runelite.client.util.ExecutorServiceExceptionLogger;
@@ -103,6 +105,9 @@ public class BoostPerformancePlugin extends Plugin
 
 	public Utils utils;
 
+	private boolean queuedUpdate = false;
+	private String currentLocalUsername;
+
 	@Provides
 	BoostPerformanceConfig provideConfig(ConfigManager configManager)
 	{
@@ -118,23 +123,32 @@ public class BoostPerformancePlugin extends Plugin
 		currentFastestKill = recentKillId = -1;
 		worldOfRecentKill = -1;
 		worldOfPreviousKill = -1;
+		queuedUpdate = true;
 		PerformanceStats.Clear(this);
 		utils = new Utils(this);
 
 		wsClient.registerMessage(BoostPerformanceSpawnUpdate.class);
 		wsClient.registerMessage(BoostPerformanceDespawnUpdate.class);
 		wsClient.registerMessage(BoostPerformanceSnipeUpdate.class);
+		wsClient.registerMessage(BoostPerformanceMemberUpdate.class);
 
 		bossDataExecutorService = new ExecutorServiceExceptionLogger(Executors.newSingleThreadScheduledExecutor());
 		bossDataExecutorService.execute(this::FetchBossData);
+
+		//request a sync from party members, dont inform join, the queuedUpdate will do this.
+		SendMemberUpdate(false,false,true,null);
 	}
 
 	@Override
 	protected void shutDown() throws Exception
 	{
+		//inform party members to remove us, in future add a heart-beat check to handle X-ing out on the client
+		SendMemberUpdate(false,true,false,null);
+
 		wsClient.unregisterMessage(BoostPerformanceSpawnUpdate.class);
 		wsClient.unregisterMessage(BoostPerformanceDespawnUpdate.class);
 		wsClient.unregisterMessage(BoostPerformanceSnipeUpdate.class);
+		wsClient.unregisterMessage(BoostPerformanceMemberUpdate.class);
 
 		clientToolbar.removeNavigation(navButton);
 
@@ -201,6 +215,47 @@ public class BoostPerformancePlugin extends Plugin
 	@Subscribe
 	public void onUserPart(final UserPart event) {
 		partyMembers.remove(event.getMemberId());
+	}
+	/**
+	 * Party member joined, request an update for the next registered game tick
+	 */
+	@Subscribe
+	public void onUserJoin(final UserJoin message)
+	{
+		queuedUpdate = true;
+	}
+	/**
+	 * User changed accounts, request an update for the next registered game tick
+	 */
+	@Subscribe
+	public void onRuneScapeProfileChanged(RuneScapeProfileChanged runeScapeProfileChanged)
+	{
+		queuedUpdate = true;
+	}
+	/**
+	 * Party member requested an update, either joining leaving or syncing, this custom packet ensures the party member is using this plugin.
+	 * A traditonal party-leave event is normally good enough for leaves, but this will also cover turning the plugin off
+	 */
+	@Subscribe
+	public void onBoostPerformanceMemberUpdate(final BoostPerformanceMemberUpdate update){
+		if(update.isUserJoining())
+		{
+			partyMembers.put(update.getMemberId(), update.getName());
+		}
+		else if(update.isUserLeaving())
+		{
+			partyMembers.remove(update.getMemberId());
+		}
+		else if(update.isUserRequestingSync()){
+			queuedUpdate = true;
+		}
+	}
+
+	void SendMemberUpdate(boolean userJoining, boolean userLeaving, boolean userRequestingSync, String name){
+		if(partyService.getLocalMember() != null)
+		{
+			partyService.send(new BoostPerformanceMemberUpdate(userJoining,userLeaving,userRequestingSync,name));
+		}
 	}
 
 	/**
@@ -720,6 +775,19 @@ public class BoostPerformancePlugin extends Plugin
 	@Subscribe
 	public void onGameTick(GameTick tick)
 	{
+		if (queuedUpdate && client.getLocalPlayer() != null && partyService.isInParty() && partyService.getLocalMember() != null)
+		{
+			currentLocalUsername = SanitizeName(client.getLocalPlayer().getName());
+			String partyName = partyService.getMemberById(partyService.getLocalMember().getMemberId()).getDisplayName();
+			//dont send unless the partyname has updated to the local name
+			if (currentLocalUsername != null && currentLocalUsername.equals(partyName))
+			{
+				//inform party members we have joined, update in the list
+				SendMemberUpdate(true,false,false,currentLocalUsername);
+				queuedUpdate = false;
+			}
+		}
+
 		if(!config.getPreventFallOff() && currentStartTime != null)
 		{
 			boostPerformancePanel.SetDuration(PERFORMANCE_SECTION.CURRENT,false);
