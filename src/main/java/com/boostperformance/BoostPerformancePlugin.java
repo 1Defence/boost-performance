@@ -706,6 +706,7 @@ public class BoostPerformancePlugin extends Plugin
 
 
 		int spawnId = finalBoss.getSpawnFormId();
+		String bossName = npc.getName();
 
 		if(!CanDespawn(world,spawnId))
 			return;
@@ -713,10 +714,16 @@ public class BoostPerformancePlugin extends Plugin
 		if(!BossData.IsValidDeath(npc))
 			return;
 
+		/**FAILSAFE:
+		 * process locally prior to party messages, prevents issues when party down/slow
+		 * additionally makes plugin work without party if desired
+		 */
+		ProcessBossDeath(world,bossName,spawnId);
+
 		if(!ShouldSendPacket(npc))
 			return;
 
-		SendBossDeath(world, npc.getName(), spawnId);
+		SendBossDeath(world, bossName, spawnId);
 
 	}
 	/**
@@ -743,6 +750,12 @@ public class BoostPerformancePlugin extends Plugin
 			}
 			return;
 		}
+
+		/**FAILSAFE:
+		 * process locally prior to party messages, prevents issues when party down/slow
+		 * additionally makes plugin work without party if desired
+		 */
+		ProcessBossSpawn(world,spawnId);
 
 		if(!ShouldSendPacket(npc))
 			return;
