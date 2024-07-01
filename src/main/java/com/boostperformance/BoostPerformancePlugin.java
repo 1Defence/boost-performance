@@ -84,12 +84,13 @@ public class BoostPerformancePlugin extends Plugin
 	final Color GOOD_HIGHLIGHT = new Color(239,16,32);
 
 	final int SECONDS_FOR_GOOD_ESTIMATE = 1200;
-	private final String BOSS_DATA_URL = "https://1defence.github.io/resources/data.json";
+	private final String DYNAMIC_BOSS_DATA_URL = "https://1defence.github.io/resources/data.json";
+
+	private final String ADDITIONAL_BOSS_DATA_URL = "https://1defence.github.io/resources/additionalData.json";
 	String KC_REGEX = "^Your (.+?) kill count is";
 	Pattern KC_REGEX_PATTERN = Pattern.compile(KC_REGEX);
 
 	private ExecutorService bossDataExecutorService;
-	BossDataJson[] fetchedData = null;
 
 	BiMap<Long, String> partyMembers = HashBiMap.create();
 	public HashMap<Integer, Set<Integer>> worldsActive = new HashMap<>();
@@ -171,12 +172,29 @@ public class BoostPerformancePlugin extends Plugin
 			BufferedReader reader;
 			try
 			{
-				reader = new BufferedReader(new InputStreamReader(new URL(BOSS_DATA_URL).openStream()));
-				fetchedData = gson.fromJson(reader, BossDataJson[].class);
-				for (BossDataJson data : fetchedData)
+				reader = new BufferedReader(new InputStreamReader(new URL(ADDITIONAL_BOSS_DATA_URL).openStream()));
+				AdditionalBossDataJson[] fetchedAdditionalData = gson.fromJson(reader, AdditionalBossDataJson[].class);
+				for (AdditionalBossDataJson data : fetchedAdditionalData)
+				{
+					BossData.AddBoss(
+							data.getSpawnFormId(),
+							data.getFinalFormId(),
+							data.getValidPartners(),
+							data.getShortName(),
+							data.getFullName(),
+							data.getSpawnSeconds(),
+							data.getDeathAnimationId(),
+							data.getEhb());
+				}
+				reader.close();
+
+				reader = new BufferedReader(new InputStreamReader(new URL(DYNAMIC_BOSS_DATA_URL).openStream()));
+				DynamicBossDataJson[] fetchedDynamicData = gson.fromJson(reader, DynamicBossDataJson[].class);
+				for (DynamicBossDataJson data : fetchedDynamicData)
 				{
 					BossData.SetBossEHB(data.getBossSpawnFormId(),data.getEhb());
 				}
+				reader.close();
 
 				//data gathered, can initiate panel.
 				InitiatePanel();

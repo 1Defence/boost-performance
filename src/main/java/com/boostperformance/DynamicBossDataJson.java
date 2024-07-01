@@ -1,6 +1,7 @@
 package com.boostperformance;
 
-public class BossDataJson {
+public class DynamicBossDataJson
+{
     private int bossSpawnFormId;
     private String bossName;
     private int ehb;
