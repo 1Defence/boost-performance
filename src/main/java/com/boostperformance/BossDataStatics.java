@@ -42,8 +42,6 @@ enum BossDataStatics
     private final int deathAnimationId;
     @Getter
     private final double ehb;
-    public static final Set<Integer> midKillBossSpawns = Set.of(NpcID.ABYSSAL_SIRE_5887, NpcID.ABYSSAL_SIRE_5888, NpcID.ABYSSAL_SIRE_5889,NpcID.ABYSSAL_SIRE_5890,NpcID.ABYSSAL_SIRE_5891, NpcID.ABYSSAL_SIRE_5908);
-
     /**
      * Set Boss data based on static values
      * set final form to be identical to spawn form if no final form specified

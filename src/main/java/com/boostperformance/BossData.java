@@ -118,12 +118,6 @@ public class BossData
     }
 
     /**
-     * In the case of the users first spawn event being a mid-kill boss, mostly applies to sire when using a vent-killer
-     */
-    public static boolean IsMidKillBossSpawn(NPC npc){
-        return (BossDataStatics.midKillBossSpawns.contains(npc.getId()));
-    }
-    /**
      * Set EHB of a bosses spawn and final forms
      * Used to update the existing static values from web-generated data
      */

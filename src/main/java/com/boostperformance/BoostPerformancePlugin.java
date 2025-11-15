@@ -762,12 +762,7 @@ public class BoostPerformancePlugin extends Plugin
 			return;
 
 		if(!BossData.IsValidBossSpawn(npc))
-		{
-			if(BossData.IsMidKillBossSpawn(npc)){
-				SendErrorGameMessage("Warning, the spawn viewed was mid kill and won't count. in the case of Sire ensure your vent-killer or any viewer has this plugin enabled and is in your party.");
-			}
 			return;
-		}
 
 		/**FAILSAFE:
 		 * process locally prior to party messages, prevents issues when party down/slow
