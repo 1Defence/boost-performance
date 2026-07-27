@@ -42,6 +42,7 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.URL;
+import java.time.Duration;
 import java.time.Instant;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -114,6 +115,11 @@ public class BoostPerformancePlugin extends Plugin
 	private boolean queuedUpdate = false;
 	private String currentLocalUsername;
 
+	boolean paused = false;
+
+	Duration totalPausedDuration = Duration.ZERO;
+	int pausedKCs = 0;
+
 	@Provides
 	BoostPerformanceConfig provideConfig(ConfigManager configManager)
 	{
@@ -130,6 +136,9 @@ public class BoostPerformancePlugin extends Plugin
 		worldOfRecentKill = -1;
 		worldOfPreviousKill = -1;
 		queuedUpdate = true;
+		paused = false;
+		totalPausedDuration = Duration.ZERO;
+		pausedKCs = 0;
 		PerformanceStats.Clear(this);
 		utils = new Utils(this);
 
@@ -362,6 +371,13 @@ public class BoostPerformancePlugin extends Plugin
 		UpdateOverall(true);
 		SendResetGameMessage("Current Kill Speed resetting...");
 	}
+
+	public void PauseCurrent(){
+		paused = true;
+		SendResetGameMessage("Current Kill Speed paused, your next kill will not be factored into KPH");
+	}
+
+
 	/**
 	 * Reset overall data and updates panel
 	 * Only resets the historical stored data
@@ -554,25 +570,38 @@ public class BoostPerformancePlugin extends Plugin
 		}
 		else
 		{
-			currentBossKills++;
-
-			long killSpeedL = utils.GetRecentKillSpeed();
-			String killSpeedS = utils.GetKillSpeedFromLong(killSpeedL);
-			boolean newFastest = UpdateFastest(killSpeedL);
-			String killsPerHour = utils.GetKillsPerHourGameMessage();
-
-			if(config.getDisplayKillMessage())
+			if(!paused)
 			{
-				killMessage = new ChatMessageBuilder()
-						.append(ChatColorType.NORMAL)
-						.append("Kills per hour: ")
-						.append(highlight, killsPerHour)
-						.append(ChatColorType.NORMAL)
-						.append(", Fight duration: ")
-						.append(ChatColorType.HIGHLIGHT)
-						.append(killSpeedS)
-						.append(ChatColorType.NORMAL)
-						.append(newFastest ? " (new personal best)" : "").build();
+				currentBossKills++;
+				long killSpeedL = utils.GetRecentKillSpeed();
+				String killSpeedS = utils.GetKillSpeedFromLong(killSpeedL);
+				boolean newFastest = UpdateFastest(killSpeedL);
+				String killsPerHour = utils.GetKillsPerHourGameMessage();
+
+				if (config.getDisplayKillMessage())
+				{
+					killMessage = new ChatMessageBuilder()
+							.append(ChatColorType.NORMAL)
+							.append("Kills per hour: ")
+							.append(highlight, killsPerHour)
+							.append(ChatColorType.NORMAL)
+							.append(", Fight duration: ")
+							.append(ChatColorType.HIGHLIGHT)
+							.append(killSpeedS)
+							.append(ChatColorType.NORMAL)
+							.append(newFastest ? " (new personal best)" : "").build();
+				}
+			}else{
+				paused = false;
+				Duration killDuration = utils.GetRecentKillDuration();
+				totalPausedDuration = totalPausedDuration.plus(killDuration);
+				pausedKCs++;
+				if (config.getDisplayKillMessage())
+				{
+					killMessage = new ChatMessageBuilder()
+							.append(ChatColorType.NORMAL)
+							.append("Kills per hour resumed, kill "+bossName+" again to continue estimating the rate").build();
+				}
 			}
 
 		}

@@ -57,6 +57,11 @@ public class Utils
 
         return duration.getSeconds();
     }
+
+    public Duration GetRecentKillDuration(){
+        return Duration.between(plugin.killStartTime, Instant.now());
+    }
+
     /**
      * Calc kill speed of recent kill
      * Removes respawn time if applicable
@@ -65,7 +70,7 @@ public class Utils
         if(plugin.killStartTime == null)
             return  0;
         boolean sameWorldAsLast = plugin.worldOfRecentKill == plugin.worldOfPreviousKill;
-        Duration elapsed = Duration.between(plugin.killStartTime, Instant.now());
+        Duration elapsed = GetRecentKillDuration();
         long respawnOffSet = sameWorldAsLast  && plugin.currentPartnerBosses == null ? (long) BossData.FindSpawnForm(plugin.recentKillId).getSpawnSeconds() : 0;
         return Math.max(elapsed.getSeconds()-respawnOffSet,0);
     }
@@ -96,7 +101,7 @@ public class Utils
     public int GetIgnoredKC(PERFORMANCE_SECTION section){
         boolean killStarted = plugin.CurrentKillHasStarted();
         boolean current = section == PERFORMANCE_SECTION.CURRENT;
-        int currentIgnored = killStarted ? 1 : 0;
+        int currentIgnored = killStarted ? (1+plugin.pausedKCs) : 0;
         int totalIgnored = currentIgnored + PerformanceStats.statsCollection.size();
         return current ? currentIgnored : totalIgnored;
     }
@@ -219,7 +224,7 @@ public class Utils
         if(current && start == null)
             return Duration.ZERO;
 
-        Duration currentDuration = start != null ? Duration.between(start,now) : Duration.ZERO;
+        Duration currentDuration = start != null ? Duration.between(start,now).minus(plugin.totalPausedDuration) : Duration.ZERO;
         Duration totalDurationBeforeCurrent = PerformanceStats.overallStats.duration;
 
         return current ? currentDuration : currentDuration.plus(totalDurationBeforeCurrent);

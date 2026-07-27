@@ -112,6 +112,8 @@ public class BoostPerformancePanel extends PluginPanel
         buttonCurrentReset.addActionListener(e ->
                 plugin.ResetCurrent());
         buttonCurrentPause.setFocusPainted(false);
+        buttonCurrentPause.addActionListener(e ->
+                plugin.PauseCurrent());
 
         buttonOverallReset.setFocusPainted(false);
         buttonOverallReset.addActionListener(e ->
