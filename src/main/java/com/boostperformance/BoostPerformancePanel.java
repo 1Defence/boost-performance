@@ -1,10 +1,11 @@
 package com.boostperformance;
 
 import net.runelite.client.ui.PluginPanel;
-import net.runelite.client.ui.FontManager;
 import net.runelite.client.util.ImageUtil;
+import net.runelite.client.util.SwingUtil;
 
 import javax.swing.*;
+import javax.swing.border.BevelBorder;
 import java.awt.*;
 
 import static com.boostperformance.BoostPerformancePlugin.PERFORMANCE_SECTION;
@@ -14,19 +15,23 @@ public class BoostPerformancePanel extends PluginPanel
 
     Utils utils;
 
-    private JPanel panelBossHeader, panelCurrentHeader, panelCurrentInfo, panelOverallHeader, panelOverallInfo;
-    private CustomLabel labelBossHeader, labelCurrentHeaderTitle, labelCurrentInfoKPH, labelCurrentInfoKC, labelCurrentInfoSnipes, labelCurrentInfoEHB, labelCurrentInfoPB, labelCurrentInfoDuration,
-            labelOverallHeaderTitle, labelOverallInfoKPH, labelOverallInfoKC, labelOverallInfoSnipes, labelOverallInfoEHB, labelOverallInfoPB, labelOverallInfoDuration;
-    private JSeparator separatorCurrent, separatorOverall;
-    private JButton buttonCurrentReset, buttonOverallReset;
-
-    private final Dimension SUB_PANEL_DIMENSIONS = new Dimension(155,145);
-    private final Color SUB_PANEL_COLOR_MAIN = new Color(51, 51, 51);
-    private final Color SUB_PANEL_COLOR_HEADER = new Color(25, 25, 25);
-
-    private final Font titleFont = FontManager.getRunescapeBoldFont().deriveFont(20f);
+    private JPanel panelBossHeader,panelCurrentHeader,panelOverallHeader;
+    private RoundedPanel  panelCurrentInfo, panelOverallInfo;
+    private InfoLabel labelCurrentInfoKPH, labelCurrentInfoKC, labelCurrentInfoSnipes, labelCurrentInfoEHB, labelCurrentInfoPB,labelCurrentInfoDuration,
+            labelOverallInfoKPH, labelOverallInfoKC, labelOverallInfoSnipes, labelOverallInfoEHB, labelOverallInfoPB,labelOverallInfoDuration;
+    private HeaderLabel labelBossHeader,labelCurrentHeaderTitle, labelOverallHeaderTitle;
+    private JButton buttonCurrentReset, buttonCurrentPause, buttonOverallReset;
+    private final Color SUB_PANEL_COLOR_MAIN = new Color(30, 30, 30);
+    private final Color SUB_PANEL_COLOR_HEADER = new Color(30, 30, 30);
 
     private final ImageIcon resetImage = new ImageIcon(ImageUtil.loadImageResource(getClass(), "icon_Reset.png"));
+    private final ImageIcon pauseImage = new ImageIcon(ImageUtil.loadImageResource(getClass(), "icon_Pause.png"));
+    private final ImageIcon clockImage = new ImageIcon(ImageUtil.loadImageResource(getClass(), "icon_Clock.png"));
+    private final static String baseKPHString = "KPH: ";
+    private final static String baseKCString = "KC: ";
+    private final static String baseSnipeString = "Snipes: ";
+    private final static String baseEHBString = "EHB: ";
+    private final static  String basePBString = "PB: ";
 
     BoostPerformancePanel(BoostPerformancePlugin plugin) {
         super();
@@ -35,15 +40,15 @@ public class BoostPerformancePanel extends PluginPanel
         InitComponents();
 
         /*Boss Section Start*/
-        SetUpHeaderPanel(panelBossHeader,labelBossHeader,"Kill a boss...",66);
+        SetUpHeaderPanel(panelBossHeader,labelBossHeader,"Kill a boss...",45,true);
 
         /*Current Section Start*/
-        SetUpHeaderPanel(panelCurrentHeader,labelCurrentHeaderTitle,"Current",40);
-        SetUpInfoPanel(panelCurrentInfo,separatorCurrent,labelCurrentInfoKPH,labelCurrentInfoKC,labelCurrentInfoSnipes,labelCurrentInfoEHB,labelCurrentInfoPB,labelCurrentInfoDuration,buttonCurrentReset);
+        SetUpHeaderPanel(panelCurrentHeader,labelCurrentHeaderTitle,"Current",40,false);
+        SetUpInfoPanel(panelCurrentInfo,labelCurrentInfoKPH,labelCurrentInfoKC,labelCurrentInfoSnipes,labelCurrentInfoEHB,labelCurrentInfoPB,labelCurrentInfoDuration,buttonCurrentReset,buttonCurrentPause);
 
         /*Overall Section Start*/
-        SetUpHeaderPanel(panelOverallHeader,labelOverallHeaderTitle,"Overall",40);
-        SetUpInfoPanel(panelOverallInfo,separatorOverall,labelOverallInfoKPH,labelOverallInfoKC,labelOverallInfoSnipes,labelOverallInfoEHB,labelOverallInfoPB,labelOverallInfoDuration,buttonOverallReset);
+        SetUpHeaderPanel(panelOverallHeader,labelOverallHeaderTitle,"Overall",40,false);
+        SetUpInfoPanel(panelOverallInfo,labelOverallInfoKPH,labelOverallInfoKC,labelOverallInfoSnipes,labelOverallInfoEHB,labelOverallInfoPB,labelOverallInfoDuration,buttonOverallReset,null);
 
         /*Add all to screen*/
         GroupLayout layout = new GroupLayout(this);
@@ -80,33 +85,33 @@ public class BoostPerformancePanel extends PluginPanel
     void InitComponents(){
 
         panelBossHeader = new JPanel();
-        labelBossHeader = new CustomLabel();
+        labelBossHeader = new HeaderLabel();
         panelCurrentHeader = new JPanel();
-        labelCurrentHeaderTitle = new CustomLabel();
-        panelCurrentInfo = new JPanel();
-        labelCurrentInfoKPH = new CustomLabel();
-        labelCurrentInfoKC = new CustomLabel();
-        labelCurrentInfoSnipes = new CustomLabel();
-        labelCurrentInfoEHB = new CustomLabel();
-        labelCurrentInfoPB = new CustomLabel();
-        separatorCurrent = new JSeparator();
-        labelCurrentInfoDuration = new CustomLabel();
+        labelCurrentHeaderTitle = new HeaderLabel();
+        panelCurrentInfo = new RoundedPanel(16);
+        labelCurrentInfoKPH = new InfoLabel();
+        labelCurrentInfoKC = new InfoLabel();
+        labelCurrentInfoSnipes = new InfoLabel();
+        labelCurrentInfoEHB = new InfoLabel();
+        labelCurrentInfoPB = new InfoLabel();
+        labelCurrentInfoDuration = new InfoLabel();
         buttonCurrentReset = new JButton(resetImage);
+        buttonCurrentPause = new JButton(pauseImage);
         panelOverallHeader = new JPanel();
-        labelOverallHeaderTitle = new CustomLabel();
-        panelOverallInfo = new JPanel();
-        labelOverallInfoKPH = new CustomLabel();
-        labelOverallInfoKC = new CustomLabel();
-        labelOverallInfoSnipes = new CustomLabel();
-        labelOverallInfoEHB = new CustomLabel();
-        labelOverallInfoPB = new CustomLabel();
-        separatorOverall = new JSeparator();
-        labelOverallInfoDuration = new CustomLabel();
+        labelOverallHeaderTitle = new HeaderLabel();
+        panelOverallInfo = new RoundedPanel(16);
+        labelOverallInfoKPH = new InfoLabel();
+        labelOverallInfoKC = new InfoLabel();
+        labelOverallInfoSnipes = new InfoLabel();
+        labelOverallInfoEHB = new InfoLabel();
+        labelOverallInfoPB = new InfoLabel();
+        labelOverallInfoDuration = new InfoLabel();
         buttonOverallReset = new JButton(resetImage);
 
         buttonCurrentReset.setFocusPainted(false);
         buttonCurrentReset.addActionListener(e ->
                 plugin.ResetCurrent());
+        buttonCurrentPause.setFocusPainted(false);
 
         buttonOverallReset.setFocusPainted(false);
         buttonOverallReset.addActionListener(e ->
@@ -119,9 +124,13 @@ public class BoostPerformancePanel extends PluginPanel
      * Sets color,label data and grid layout settings
      *
      */
-    private void SetUpHeaderPanel(JPanel headerPanel, CustomLabel titleLabel, String header, int headerSizeV){
-        headerPanel.setBackground(SUB_PANEL_COLOR_HEADER);
-        titleLabel.setData(SwingConstants.CENTER,header,titleFont);
+    private void SetUpHeaderPanel(JPanel headerPanel, HeaderLabel titleLabel, String header, int headerSizeV, boolean hasBorder){
+        titleLabel.setText(header);
+        if(hasBorder)
+        {
+            headerPanel.setBackground(SUB_PANEL_COLOR_HEADER);
+            titleLabel.setBorder(BorderFactory.createBevelBorder(BevelBorder.RAISED));
+        }
 
         GroupLayout layout = new GroupLayout(headerPanel);
         headerPanel.setLayout(layout);
@@ -143,65 +152,69 @@ public class BoostPerformancePanel extends PluginPanel
      * Sets color,dimension,label defaults and grid layout settings
      *
      */
-    private void SetUpInfoPanel(JPanel infoPanel, Component separator, CustomLabel kph, CustomLabel kc, CustomLabel snipes, CustomLabel ehb, CustomLabel pb, CustomLabel duration, JButton button){
+    private void SetUpInfoPanel(RoundedPanel infoPanel, InfoLabel kph, InfoLabel kc,
+                                InfoLabel snipes, InfoLabel ehb, InfoLabel pb,
+                                InfoLabel duration, JButton resetButton, JButton pauseButton) {
 
         infoPanel.setBackground(SUB_PANEL_COLOR_MAIN);
-        infoPanel.setPreferredSize(SUB_PANEL_DIMENSIONS);
+        infoPanel.setLayout(new BoxLayout(infoPanel, BoxLayout.Y_AXIS));
+        infoPanel.setBorder(BorderFactory.createEmptyBorder(10, 12, 2, 12));
+
+        kph.setInfo(baseKPHString,"--");
+        kc.setInfo(baseKCString,"0");
+
+        snipes.setInfo(baseSnipeString,"0");
+
+        ehb.setInfo(baseEHBString,"--");
+        pb.setInfo(basePBString,"--");
+
+        duration.setInfoNoLabel("0:00:00");
+
+        addInfoRow(infoPanel,kph);
+        addInfoRow(infoPanel,kc);
+        addInfoRow(infoPanel,snipes);
+        addInfoRow(infoPanel,ehb);
+        addInfoRow(infoPanel,pb);
 
 
-        kph.setText("KPH: --");
-        kc.setText("KC: 0");
-        snipes.setText("Snipes: 0");
-        ehb.setText("EHB: --");
-        duration.setText("🕑 0:00:00");
-        pb.setText("PB: --");
+        //Bottom info bar
+        JPanel row = new JPanel();
+        row.setOpaque(false);
+        row.setLayout(new BoxLayout(row, BoxLayout.X_AXIS));
+        row.setAlignmentX(Component.LEFT_ALIGNMENT);
 
-        GroupLayout gridLayout = new GroupLayout(infoPanel);
-        infoPanel.setLayout(gridLayout);
+        JLabel icon = new JLabel(clockImage);
+        icon.setAlignmentY(Component.CENTER_ALIGNMENT);
+        duration.setAlignmentY(Component.CENTER_ALIGNMENT);
 
-        int buttonSize = 24;
+        row.add(icon);
+        row.add(Box.createHorizontalStrut(6));
+        row.add(duration);
+        row.add(Box.createHorizontalGlue());
 
-        gridLayout.setHorizontalGroup(
-                gridLayout.createParallelGroup(GroupLayout.Alignment.LEADING)
-                        .addComponent(separator)
-                        .addGroup(gridLayout.createSequentialGroup()
-                                .addContainerGap()
-                                .addGroup(gridLayout.createParallelGroup(GroupLayout.Alignment.LEADING)
-                                        .addGroup(gridLayout.createSequentialGroup()
-                                                .addGroup(gridLayout.createParallelGroup(GroupLayout.Alignment.LEADING)
-                                                        .addComponent(kph)
-                                                        .addComponent(kc)
-                                                        .addComponent(snipes)
-                                                        .addComponent(ehb)
-                                                        .addComponent(pb)
-                                                ))
-                                        .addGroup(gridLayout.createSequentialGroup()
-                                                .addComponent(duration, GroupLayout.DEFAULT_SIZE, GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                                                .addPreferredGap(LayoutStyle.ComponentPlacement.RELATED)
-                                                .addComponent(button, GroupLayout.PREFERRED_SIZE, buttonSize, GroupLayout.PREFERRED_SIZE))))
-        );
-        gridLayout.setVerticalGroup(
-                gridLayout.createParallelGroup(GroupLayout.Alignment.LEADING)
-                        .addGroup(gridLayout.createSequentialGroup()
-                                .addContainerGap()
-                                .addComponent(kph)
-                                .addPreferredGap(LayoutStyle.ComponentPlacement.RELATED)
-                                .addComponent(kc)
-                                .addPreferredGap(LayoutStyle.ComponentPlacement.RELATED)
-                                .addComponent(snipes)
-                                .addPreferredGap(LayoutStyle.ComponentPlacement.RELATED)
-                                .addComponent(ehb)
-                                .addPreferredGap(LayoutStyle.ComponentPlacement.RELATED)
-                                .addComponent(pb)
-                                .addPreferredGap(LayoutStyle.ComponentPlacement.RELATED)
-                                .addGroup(gridLayout.createParallelGroup(GroupLayout.Alignment.TRAILING)
-                                        .addGroup(gridLayout.createSequentialGroup()
-                                                .addComponent(separator, GroupLayout.PREFERRED_SIZE, GroupLayout.PREFERRED_SIZE, GroupLayout.PREFERRED_SIZE)
-                                                .addPreferredGap(LayoutStyle.ComponentPlacement.RELATED)
-                                                .addComponent(duration))
-                                        .addComponent(button, GroupLayout.PREFERRED_SIZE, buttonSize, GroupLayout.PREFERRED_SIZE))
-                                .addContainerGap(GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-        );
+        if(pauseButton != null){
+            SwingUtil.removeButtonDecorations(pauseButton);
+            row.add(pauseButton);
+        }
+
+        SwingUtil.removeButtonDecorations(resetButton);
+        row.add(resetButton);
+
+        infoPanel.add(row);
+
+    }
+
+    public void addInfoRow(JPanel panel, JComponent label){
+        JPanel row = new JPanel();
+        row.setOpaque(false);
+        row.setLayout(new BoxLayout(row, BoxLayout.X_AXIS));
+        row.setAlignmentX(Component.LEFT_ALIGNMENT);
+        row.add(label);
+
+        panel.add(row);
+        panel.add(Box.createVerticalStrut(4));
+        panel.add(new JSeparator());
+        panel.add(Box.createVerticalStrut(4));
     }
 
     /**
@@ -211,9 +224,9 @@ public class BoostPerformancePanel extends PluginPanel
         String kphText = utils.GetKillsPerHourString(section,true);
         boolean current = section == PERFORMANCE_SECTION.CURRENT;
         if(current){
-            labelCurrentInfoKPH.setText(kphText);
+            labelCurrentInfoKPH.setValue(kphText);
         }else{
-            labelOverallInfoKPH.setText(kphText);
+            labelOverallInfoKPH.setValue(kphText);
         }
     }
     /**
@@ -223,9 +236,9 @@ public class BoostPerformancePanel extends PluginPanel
         String kcText = utils.GetKCString(section);
         boolean current = section == PERFORMANCE_SECTION.CURRENT;
         if(current){
-            labelCurrentInfoKC.setText(kcText);
+            labelCurrentInfoKC.setValue(kcText);
         }else{
-            labelOverallInfoKC.setText(kcText);
+            labelOverallInfoKC.setValue(kcText);
         }
     }
     /**
@@ -235,9 +248,9 @@ public class BoostPerformancePanel extends PluginPanel
         String snipeText = utils.GetSnipeString(section);
         boolean current = section == PERFORMANCE_SECTION.CURRENT;
         if(current){
-            labelCurrentInfoSnipes.setText(snipeText);
+            labelCurrentInfoSnipes.setValue(snipeText);
         }else{
-            labelOverallInfoSnipes.setText(snipeText);
+            labelOverallInfoSnipes.setValue(snipeText);
         }
     }
     /**
@@ -247,9 +260,9 @@ public class BoostPerformancePanel extends PluginPanel
         String ehbText = utils.GetEHBString(section);
         boolean current = section == PERFORMANCE_SECTION.CURRENT;
         if(current){
-            labelCurrentInfoEHB.setText(ehbText);
+            labelCurrentInfoEHB.setValue(ehbText);
         }else{
-            labelOverallInfoEHB.setText(ehbText);
+            labelOverallInfoEHB.setValue(ehbText);
         }
     }
     /**
@@ -271,9 +284,9 @@ public class BoostPerformancePanel extends PluginPanel
         String pbText = utils.GetPBString(section);
         boolean current = section == PERFORMANCE_SECTION.CURRENT;
         if(current){
-            labelCurrentInfoPB.setText(pbText);
+            labelCurrentInfoPB.setValue(pbText);
         }else{
-            labelOverallInfoPB.setText(pbText);
+            labelOverallInfoPB.setValue(pbText);
         }
     }
 

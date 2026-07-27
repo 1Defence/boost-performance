@@ -11,12 +11,6 @@ import static com.boostperformance.BoostPerformancePlugin.PERFORMANCE_SECTION;
 public class Utils
 {
 
-    private final static String baseKPHString = "KPH: ";
-    private final static String baseKCString = "KC: ";
-    private final static String baseSnipeString = "Snipes: ";
-    private final static String baseEHBString = "EHB: ";
-    private final static String baseDurationString = "🕑 ";
-    private final static  String basePBString = "PB: ";
     private final static String invalidResultString = "--";
 
     BoostPerformancePlugin plugin;
@@ -41,8 +35,8 @@ public class Utils
         DecimalFormat df = new DecimalFormat("0.00");
         double kph = GetKillsPerHourDouble(section,preventFall);
         if(kph == 0)
-            return baseKPHString+invalidResultString;
-        return baseKPHString+df.format(kph);
+            return invalidResultString;
+        return df.format(kph);
     }
     /**
      * Format KPH value -- used for game message
@@ -92,7 +86,7 @@ public class Utils
      */
     public String GetKCString(PERFORMANCE_SECTION section){
         int ignoredKC = GetIgnoredKC(section);
-        return baseKCString + (GetKC(section) + ignoredKC) + (ignoredKC > 0 ? " (-"+ignoredKC+")" : "");
+        return  (GetKC(section) + ignoredKC) + (ignoredKC > 0 ? " (-"+ignoredKC+")" : "");
     }
     /**
      * Iniital kc is a burner, we still want to know how many of these burners have occued
@@ -115,13 +109,13 @@ public class Utils
         int kills = GetKC(section) + GetIgnoredKC(section);
         int snipes = GetSnipes(section);
         if(snipes == 0)
-            return baseSnipeString+"0";
+            return "0";
         if(snipes > kills)
-            return baseSnipeString+snipes;
+            return ""+snipes;
         int snipeFractionDenominator = snipes > 0 ? (int)Math.floor((double)kills/(double)snipes) : kills;
         int snipeFractionNumerator = snipes > 0 ? 1 : 0;
         double snipePercentage = ((double)snipes/(double)kills)*100d;
-        return baseSnipeString+snipes+", "+snipeFractionNumerator+"/"+snipeFractionDenominator+" ("+df.format(snipePercentage)+"%)";
+        return snipes+", "+snipeFractionNumerator+"/"+snipeFractionDenominator+" ("+df.format(snipePercentage)+"%)";
     }
     /**
      * Format EHB string -- used for panel
@@ -130,9 +124,9 @@ public class Utils
         DecimalFormat df = new DecimalFormat("0.00");
         double ehbGained = GetEHBGained(section);
         if(ehbGained == 0)
-            return baseEHBString+invalidResultString;
+            return invalidResultString;
         double scaledEhbRate = GetScaledEHBRate(section,ehbGained);
-        return baseEHBString+df.format(ehbGained)+" ("+df.format(scaledEhbRate)+"x)";
+        return df.format(ehbGained)+" ("+df.format(scaledEhbRate)+"x)";
     }
     /**
      * Calc gained EHB
@@ -170,11 +164,11 @@ public class Utils
     public String GetDurationString(PERFORMANCE_SECTION section, boolean preventFall) {
         Duration duration = GetDuration(section,preventFall);
         if(duration == null)
-            return baseDurationString+invalidResultString;
+            return invalidResultString;
 
         long seconds = duration.getSeconds();
         long absSeconds = Math.abs(seconds);
-        return baseDurationString+String.format(
+        return String.format(
                 "%d:%02d:%02d",
                 absSeconds / 3600,
                 (absSeconds % 3600) / 60,
@@ -186,8 +180,8 @@ public class Utils
     public String GetPBString(PERFORMANCE_SECTION section) {
         long pb = GetPB(section);
         if(pb == -1)
-            return basePBString+invalidResultString;
-        return basePBString+ GetKillSpeedFromLong(pb);
+            return invalidResultString;
+        return GetKillSpeedFromLong(pb);
     }
     /**
      * Get KC of a given section

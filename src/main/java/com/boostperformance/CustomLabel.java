@@ -20,12 +20,4 @@ public class CustomLabel extends JLabel
         this.setFont(boldFont);
     }
 
-    public void setData(int alignment, String text, Font font){
-        setHorizontalAlignment(alignment);
-        setText(text);
-        setFont(font);
-    }
-
-
-
 }
