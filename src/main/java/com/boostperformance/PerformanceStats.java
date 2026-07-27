@@ -12,6 +12,10 @@ public class PerformanceStats
     //overall sum of collection
     public static PerformanceStats overallStats = new PerformanceStats();
 
+    int totalPausedKc = 0;
+
+    Duration totalPausedDuration = Duration.ZERO;
+
     int bossId;
     double kph;
     int kc;
@@ -19,6 +23,9 @@ public class PerformanceStats
     double ehb;
     long pb;
     Duration duration;
+    int pausedKc;
+
+    Duration pausedDuration;
 
     public PerformanceStats(){
         this.bossId = 0;
@@ -28,8 +35,9 @@ public class PerformanceStats
         this.ehb = 0;
         this.pb = -1;
         this.duration = Duration.ZERO;
+        this.pausedKc = 0;
     }
-    public PerformanceStats(int bossId,double kph,int kc,int snipes,double ehb, long pb,Duration duration){
+    public PerformanceStats(int bossId,double kph,int kc,int snipes,double ehb, long pb,Duration duration, int pausedKc, Duration pausedDuration){
         this.bossId = bossId;
         this.kph = kph;
         this.kc = kc;
@@ -37,22 +45,26 @@ public class PerformanceStats
         this.ehb = ehb;
         this.pb = pb;
         this.duration = duration;
+        this.pausedKc = pausedKc;
+        this.pausedDuration = pausedDuration;
 
         overallStats.kc += kc;
         overallStats.snipes += snipes;
         overallStats.ehb += ehb;
-        overallStats.duration = overallStats.duration.plus(duration);
+
+        overallStats.totalPausedDuration = overallStats.totalPausedDuration.plus(pausedDuration);
+        overallStats.duration = overallStats.duration.plus(duration).minus(pausedDuration);
 
         if(pb != -1 && pb < overallStats.pb)
             overallStats.pb = pb;
 
         double secondsPerKill = (double)overallStats.duration.getSeconds() / (double)overallStats.kc;
         overallStats.kph = (3600d / secondsPerKill);
-
+        overallStats.totalPausedKc += pausedKc;
     }
 
-    public static void Add(int bossId, double kph, int kc, int snipes, double ehb, long pb, Instant startTime, Instant killStartTime){
-        statsCollection.add(new PerformanceStats(bossId,kph,kc,snipes,ehb,pb,Duration.between(startTime,killStartTime)));
+    public static void Add(int bossId, double kph, int kc, int snipes, double ehb, long pb, Instant startTime, Instant killStartTime, int pausedKc,Duration pausedDuration){
+        statsCollection.add(new PerformanceStats(bossId,kph,kc,snipes,ehb,pb,Duration.between(startTime,killStartTime),pausedKc,pausedDuration));
     }
 
     public static void Clear(BoostPerformancePlugin plugin){

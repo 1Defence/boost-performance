@@ -102,7 +102,7 @@ public class Utils
         boolean killStarted = plugin.CurrentKillHasStarted();
         boolean current = section == PERFORMANCE_SECTION.CURRENT;
         int currentIgnored = killStarted ? (1+plugin.pausedKCs) : 0;
-        int totalIgnored = currentIgnored + PerformanceStats.statsCollection.size();
+        int totalIgnored = currentIgnored + PerformanceStats.statsCollection.size() + PerformanceStats.overallStats.totalPausedKc;
         return current ? currentIgnored : totalIgnored;
     }
     /**

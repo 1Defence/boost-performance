@@ -117,7 +117,7 @@ public class BoostPerformancePlugin extends Plugin
 
 	boolean paused = false;
 
-	Duration totalPausedDuration = Duration.ZERO;
+	Duration totalPausedDuration = Duration.ZERO;//needs a rename, its the total paused of current, not to be confused with overall total
 	int pausedKCs = 0;
 
 	@Provides
@@ -310,6 +310,21 @@ public class BoostPerformancePlugin extends Plugin
 		return isFastest;
 	}
 
+	void SendSnipeGameMessage(){
+		String message = new ChatMessageBuilder()
+				.append(ChatColorType.NORMAL)
+				.append("[Boost Performance] You sniped a kill (enable ")
+				.append(ChatColorType.HIGHLIGHT)
+				.append("'isMain'")
+				.append(ChatColorType.NORMAL)
+				.append(" in the settings otherwise.)")
+				.build();
+		chatMessageManager.queue(QueuedMessage.builder()
+				.type(ChatMessageType.CONSOLE)
+				.runeLiteFormattedMessage(message)
+				.build());
+	}
+
 	/**
 	 * Convenience function to send a game message when resetting.
 	 */
@@ -318,7 +333,7 @@ public class BoostPerformancePlugin extends Plugin
 		{
 
 			String message = new ChatMessageBuilder()
-					.append(ChatColorType.HIGHLIGHT)
+					.append(ChatColorType.NORMAL)
 					.append(contents)
 					.build();
 			chatMessageManager.queue(QueuedMessage.builder()
@@ -358,7 +373,9 @@ public class BoostPerformancePlugin extends Plugin
 					utils.GetEHBGained(PERFORMANCE_SECTION.CURRENT),
 					currentFastestKill,
 					currentStartTime,
-					killStartTime
+					killStartTime,
+					pausedKCs,
+					totalPausedDuration
 					);
 		}
 
@@ -367,12 +384,18 @@ public class BoostPerformancePlugin extends Plugin
 		currentBossKills = currentSnipes = 0;
 		currentFastestKill = recentKillId = -1;
 
+		paused = false;
+		pausedKCs = 0;
+		totalPausedDuration = Duration.ZERO;
+
 		UpdateCurrent(true);
 		UpdateOverall(true);
 		SendResetGameMessage("Current Kill Speed resetting...");
 	}
 
 	public void PauseCurrent(){
+		if(currentStartTime == null)
+			return;
 		paused = true;
 		SendResetGameMessage("Current Kill Speed paused, your next kill will not be factored into KPH");
 	}
@@ -563,7 +586,7 @@ public class BoostPerformancePlugin extends Plugin
 			currentBossKills = 0;
 			boostPerformancePanel.SetBossName();
 			killMessage = new ChatMessageBuilder()
-					.append(ChatColorType.HIGHLIGHT)
+					.append(ChatColorType.NORMAL)
 					.append("Kill Speed now tracking, kill "+bossName+" again to estimate the rate")
 					.build();
 
@@ -814,6 +837,7 @@ public class BoostPerformancePlugin extends Plugin
 		if(partyService.getLocalMember() != null)
 		{
 			partyService.send(new BoostPerformanceSnipeUpdate());
+			SendSnipeGameMessage();
 		}
 	}
 	/**
