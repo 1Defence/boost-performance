@@ -589,7 +589,6 @@ public class BoostPerformancePlugin extends Plugin
 					.append(ChatColorType.NORMAL)
 					.append("Kill Speed now tracking, kill "+bossName+" again to estimate the rate")
 					.build();
-
 		}
 		else
 		{
@@ -828,6 +827,40 @@ public class BoostPerformancePlugin extends Plugin
 		SendBossSpawn(client.getWorld(),spawnId);
 
 	}
+
+	/**
+	 * Account for wakeable npcs (mad angel for now)
+	 */
+	@Subscribe
+	public void onNpcChanged(NpcChanged npcChanged){
+		NPC npc = npcChanged.getNpc();
+		if(npc == null)
+			return;
+
+		int world = client.getWorld();
+
+		int newNpcId = npc.getId();
+
+		int originalId = BossData.originalWakeID(newNpcId);
+
+		if(originalId == -1)
+			return;
+
+		if(!CanSpawn(world,originalId))
+			return;
+
+		/**FAILSAFE:
+		 * process locally prior to party messages, prevents issues when party down/slow
+		 * additionally makes plugin work without party if desired
+		 */
+		ProcessBossSpawn(world,originalId);
+
+		if(!ShouldSendPacket(npc))
+			return;
+
+		SendBossSpawn(client.getWorld(),originalId);
+	}
+
 
 	/**
 	 * Inform all party members that someone has sniped

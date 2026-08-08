@@ -1,6 +1,7 @@
 package com.boostperformance;
 
 import net.runelite.api.NPC;
+import net.runelite.api.NpcID;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -69,6 +70,15 @@ public class BossData
         if(validPartners == null)
             return false;
         return validPartners.contains(partnerId);
+    }
+
+    //the original spawn id prior to wake
+    public static int originalWakeID(int id){
+        switch (id){
+            case NpcID.MAD_ANGEL_16307:
+                return NpcID.MAD_ANGEL_16306;
+        }
+        return -1;
     }
 
     public double getSpawnSeconds()

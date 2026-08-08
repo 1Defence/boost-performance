@@ -22,6 +22,7 @@ enum BossDataStatics
     THERMONUCLEAR_SMOKE_DEVIL(NpcID.THERMONUCLEAR_SMOKE_DEVIL,-1,null,"Thermy","Thermonuclear smoke devil", 0.6, 3849, 150.0),
     KRAKEN(NpcID.WHIRLPOOL_496,NpcID.KRAKEN,null,"Kraken","Kraken", 8.4, 3993, 100.0),
     SCURRIUS(NpcID.SCURRIUS,-1,null,"Scurrius","Scurrius",18.0, 10705, 85.0),
+    MAD_ANGEL(NpcID.MAD_ANGEL_16306,-1,null,"Mad Angel","Mad Angel",0.6, 666, 56.0),
     DAGANNOTH_SUPREME(NpcID.DAGANNOTH_SUPREME,-1,Set.of(NpcID.DAGANNOTH_REX, NpcID.DAGANNOTH_PRIME),"Supreme","Dagannoth Supreme", 90.0, 2856, 105.0),
     DAGANNOTH_PRIME(NpcID.DAGANNOTH_PRIME,-1,Set.of(NpcID.DAGANNOTH_REX, NpcID.DAGANNOTH_SUPREME),"Prime","Dagannoth Prime", 90.0, 2856, 105.0),
     DAGANNOTH_REX(NpcID.DAGANNOTH_REX,-1,Set.of(NpcID.DAGANNOTH_SUPREME, NpcID.DAGANNOTH_PRIME),"Rex","Dagannoth Rex", 90.0, 2856, 105.0);
