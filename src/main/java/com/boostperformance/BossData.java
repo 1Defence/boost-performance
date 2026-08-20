@@ -2,6 +2,7 @@ package com.boostperformance;
 
 import net.runelite.api.NPC;
 import net.runelite.api.NpcID;
+import net.runelite.api.coords.WorldPoint;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -18,6 +19,8 @@ public class BossData
     private final double spawnSeconds;
     private final int deathAnimationId;
     public double ehb;
+    private WorldPoint spawnLocation;
+    private int size;
     public static final Map<Integer, BossData> spawnFormBosses = new HashMap<>();
     public static final Map<Integer, BossData> finalFormBosses = new HashMap<>();
     public static final Map<String, BossData> bossesByName = new HashMap<>();
@@ -34,10 +37,12 @@ public class BossData
                     boss.getFullName(),
                     boss.getSpawnSeconds(),
                     boss.getDeathAnimationId(),
-                    boss.getEhb());
+                    boss.getEhb(),
+                    boss.getSpawnLocation(),
+                    boss.getSize());
         }
     }
-    BossData(int spawnFormId, int finalFormId, Set<Integer> validPartners, String shortName, String fullName, double spawnSeconds, int deathAnimationId, double ehb)
+    BossData(int spawnFormId, int finalFormId, Set<Integer> validPartners, String shortName, String fullName, double spawnSeconds, int deathAnimationId, double ehb, WorldPoint spawnLocation, int size)
     {
         this.spawnFormId = spawnFormId;
         this.finalFormId = finalFormId == -1 ? spawnFormId : finalFormId;
@@ -47,6 +52,18 @@ public class BossData
         this.fullName = fullName;
         this.deathAnimationId = deathAnimationId;
         this.ehb = ehb;
+        this.spawnLocation = spawnLocation;
+        this.size = size;
+    }
+
+    public WorldPoint getSpawnLocation()
+    {
+        return spawnLocation;
+    }
+
+    public int getSize()
+    {
+        return size;
     }
 
     public int getSpawnFormId()
@@ -140,7 +157,7 @@ public class BossData
      * Adds bossdata to lists of valid bosses, used both with initial hardcoded values & additional web values
      * Allows list of bosses to be up to date when new bosses are released while not creating an unnecessary amount of traffic
      */
-    public static void AddBoss(int spawnFormId, int finalFormId, Set<Integer> validPartners, String shortName, String fullName, double spawnSeconds, int deathAnimationId, double ehb)
+    public static void AddBoss(int spawnFormId, int finalFormId, Set<Integer> validPartners, String shortName, String fullName, double spawnSeconds, int deathAnimationId, double ehb, WorldPoint spawnLocation, int size)
     {
         if(spawnFormBosses.containsKey(spawnFormId))
             return;
@@ -148,7 +165,7 @@ public class BossData
         if(spawnFormId == -1)
             return;
 
-        BossData boss = new BossData(spawnFormId,finalFormId,validPartners,shortName,fullName,spawnSeconds,deathAnimationId,ehb);
+        BossData boss = new BossData(spawnFormId,finalFormId,validPartners,shortName,fullName,spawnSeconds,deathAnimationId,ehb,spawnLocation,size);
         BossData.spawnFormBosses.put(spawnFormId,boss);
         BossData.finalFormBosses.put(finalFormId,boss);
         BossData.bossesByName.put(fullName,boss);

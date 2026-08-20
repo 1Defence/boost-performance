@@ -1,6 +1,7 @@
 package com.boostperformance;
 
 import lombok.Getter;
+import net.runelite.api.coords.WorldPoint;
 
 import java.util.Set;
 
@@ -29,5 +30,11 @@ public class AdditionalBossDataJson
 
     @Getter
     private double ehb;
+
+    @Getter
+    private WorldPoint spawnLocation;
+
+    @Getter
+    private int size;
 
 }

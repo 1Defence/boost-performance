@@ -193,7 +193,9 @@ public class BoostPerformancePlugin extends Plugin
 							data.getFullName(),
 							data.getSpawnSeconds(),
 							data.getDeathAnimationId(),
-							data.getEhb());
+							data.getEhb(),
+							data.getSpawnLocation(),
+							data.getSize());
 				}
 				reader.close();
 
