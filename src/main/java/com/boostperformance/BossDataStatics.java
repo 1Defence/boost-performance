@@ -8,25 +8,25 @@ import java.util.Set;
 enum BossDataStatics
 {
     CORPOREAL_BEAST(NpcID.CORPOREAL_BEAST,-1,null,"Corp","Corporeal Beast",30.0, 1676, 60.0, new WorldPoint(2993,4382,2),5),
-    GENERAL_GRAARDOR(NpcID.GENERAL_GRAARDOR,-1,null,"Bandos","General Graardor",90.0, 7020, 58.0,null,0),
-    KRIL_TSUTSAROTH(NpcID.KRIL_TSUTSAROTH,-1,null,"Zammy","K'ril Tsutsaroth", 90.0, 6949, 65.0,null,0),
-    KREEARRA(NpcID.KREEARRA,-1,null,"Arma","Kree'arra", 90.0, 6979, 40.0,null,0),
-    COMMANDER_ZILYANA(NpcID.COMMANDER_ZILYANA,-1,null,"Sara","Commander Zilyana", 90.0, 6968, 60.0,null,0),
-    SARACHNIS(NpcID.SARACHNIS,-1,null,"Sarachnis","Sarachnis", 9.6, 8318, 80.0,null,0),
-    SCORPIA(NpcID.SCORPIA,-1,null,"Scorpia","Scorpia", 9.6, 6256, 130.0,null,0),
-    GIANT_MOLE(NpcID.GIANT_MOLE,-1,null,"Mole","Giant Mole", 9.0,3310, 125.0,null,0),
-    KING_BLACK_DRAGON(NpcID.KING_BLACK_DRAGON,-1,null,"KBD","King Black Dragon",9.0, 92, 130.0,null,0),
-    CHAOS_ELEMENTAL(NpcID.CHAOS_ELEMENTAL,-1,null,"Chaos Ele","Chaos Elemental", 60.0, 3147, 120.0,null,0),
-    KALPHITE_QUEEN(NpcID.KALPHITE_QUEEN_963,NpcID.KALPHITE_QUEEN_965,null,"KQ","Kalphite Queen", 30.0, 6233, 55.0,null,0),
-    CERBERUS(NpcID.CERBERUS_5863,NpcID.CERBERUS,null,"Cerberus","Cerberus", 9.0, 4495, 65.0,null,0),
+    GENERAL_GRAARDOR(NpcID.GENERAL_GRAARDOR,-1,null,"Bandos","General Graardor",90.0, 7020, 58.0,new WorldPoint(2872,5358,2),4),
+    KRIL_TSUTSAROTH(NpcID.KRIL_TSUTSAROTH,-1,null,"Zammy","K'ril Tsutsaroth", 90.0, 6949, 65.0,new WorldPoint(2925,5322,2),5),
+    KREEARRA(NpcID.KREEARRA,-1,null,"Arma","Kree'arra", 90.0, 6979, 40.0,new WorldPoint(2832,5302,2),2),
+    COMMANDER_ZILYANA(NpcID.COMMANDER_ZILYANA,-1,null,"Sara","Commander Zilyana", 90.0, 6968, 60.0,new WorldPoint(2897,5269,0),2),
+    SARACHNIS(NpcID.SARACHNIS,-1,null,"Sarachnis","Sarachnis", 10.2, 8318, 80.0,new WorldPoint(1840,9900,0),5),
+    SCORPIA(NpcID.SCORPIA,-1,null,"Scorpia","Scorpia", 9.6, 6256, 130.0,new WorldPoint(3233,10341,0),5),
+    GIANT_MOLE(NpcID.GIANT_MOLE,-1,null,"Mole","Giant Mole", 9.6,3310, 125.0,new WorldPoint(1759,5189,0),3),
+    KING_BLACK_DRAGON(NpcID.KING_BLACK_DRAGON,-1,null,"KBD","King Black Dragon",9.6, 92, 130.0,new WorldPoint(3109,10265,0),5),
+    CHAOS_ELEMENTAL(NpcID.CHAOS_ELEMENTAL,-1,null,"Chaos Ele","Chaos Elemental", 8.4, 3147, 120.0,new WorldPoint(3261,3927,0),3),
+    KALPHITE_QUEEN(NpcID.KALPHITE_QUEEN_963,NpcID.KALPHITE_QUEEN_965,null,"KQ","Kalphite Queen", 30.0, 6233, 55.0,new WorldPoint(3186,9424,0),5),
+    CERBERUS(NpcID.CERBERUS_5863,NpcID.CERBERUS,null,"Cerberus","Cerberus", 9.0, 4495, 65.0,new WorldPoint(1366,1250,0),5),//re-evaluate how to do respawn here
     ABYSSAL_SIRE(NpcID.ABYSSAL_SIRE,NpcID.ABYSSAL_SIRE_5908,null,"Sire","Abyssal Sire", 0.6, 7100, 45.0,null,0),
-    THERMONUCLEAR_SMOKE_DEVIL(NpcID.THERMONUCLEAR_SMOKE_DEVIL,-1,null,"Thermy","Thermonuclear smoke devil", 0.6, 3849, 150.0,null,0),
-    KRAKEN(NpcID.WHIRLPOOL_496,NpcID.KRAKEN,null,"Kraken","Kraken", 8.4, 3993, 100.0,null,0),
-    SCURRIUS(NpcID.SCURRIUS,-1,null,"Scurrius","Scurrius",18.0, 10705, 85.0,null,0),
+    THERMONUCLEAR_SMOKE_DEVIL(NpcID.THERMONUCLEAR_SMOKE_DEVIL,-1,null,"Thermy","Thermonuclear smoke devil", 9.0, 3849, 150.0,new WorldPoint(2360,9452,0),4),
+    KRAKEN(NpcID.WHIRLPOOL_496,NpcID.KRAKEN,null,"Kraken","Kraken", 8.4, 3993, 100.0,new WorldPoint(2278,10034,0),4),
+    SCURRIUS(NpcID.SCURRIUS,-1,null,"Scurrius","Scurrius",18.0, 10705, 85.0,new WorldPoint(3299,9867,0),3),
     MAD_ANGEL(NpcID.MAD_ANGEL_16306,-1,null,"Mad Angel","Mad Angel",0.6, 666, 56.0,null,0),
-    DAGANNOTH_SUPREME(NpcID.DAGANNOTH_SUPREME,-1,Set.of(NpcID.DAGANNOTH_REX, NpcID.DAGANNOTH_PRIME),"Supreme","Dagannoth Supreme", 90.0, 2856, 105.0,null,0),
-    DAGANNOTH_PRIME(NpcID.DAGANNOTH_PRIME,-1,Set.of(NpcID.DAGANNOTH_REX, NpcID.DAGANNOTH_SUPREME),"Prime","Dagannoth Prime", 90.0, 2856, 105.0,null,0),
-    DAGANNOTH_REX(NpcID.DAGANNOTH_REX,-1,Set.of(NpcID.DAGANNOTH_SUPREME, NpcID.DAGANNOTH_PRIME),"Rex","Dagannoth Rex", 90.0, 2856, 105.0,null,0);
+    DAGANNOTH_SUPREME(NpcID.DAGANNOTH_SUPREME,-1,Set.of(NpcID.DAGANNOTH_REX, NpcID.DAGANNOTH_PRIME),"Supreme","Dagannoth Supreme", 90.0, 2856, 105.0,new WorldPoint(2633,9661,0),3),
+    DAGANNOTH_PRIME(NpcID.DAGANNOTH_PRIME,-1,Set.of(NpcID.DAGANNOTH_REX, NpcID.DAGANNOTH_SUPREME),"Prime","Dagannoth Prime", 90.0, 2856, 105.0,new WorldPoint(2626,9664,0),3),
+    DAGANNOTH_REX(NpcID.DAGANNOTH_REX,-1,Set.of(NpcID.DAGANNOTH_SUPREME, NpcID.DAGANNOTH_PRIME),"Rex","Dagannoth Rex", 90.0, 2856, 105.0,new WorldPoint(2631,9667,0),3);
 
     @Getter
     private final int spawnFormId;

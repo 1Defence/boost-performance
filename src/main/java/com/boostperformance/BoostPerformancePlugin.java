@@ -32,6 +32,7 @@ import net.runelite.client.plugins.Plugin;
 import net.runelite.client.plugins.PluginDescriptor;
 import net.runelite.client.ui.ClientToolbar;
 import net.runelite.client.ui.NavigationButton;
+import net.runelite.client.ui.overlay.OverlayManager;
 import net.runelite.client.util.ExecutorServiceExceptionLogger;
 import net.runelite.client.util.ImageUtil;
 import net.runelite.client.util.Text;
@@ -81,6 +82,12 @@ public class BoostPerformancePlugin extends Plugin
 	@Inject
 	private Gson gson;
 
+	@Inject
+	private OverlayManager overlayManager;
+
+	@Inject
+	private RespawnOverlay overlay;
+
 	final Color BAD_HIGHLIGHT = new Color(90,90,90);
 	final Color GOOD_HIGHLIGHT = new Color(239,16,32);
 
@@ -95,6 +102,8 @@ public class BoostPerformancePlugin extends Plugin
 
 	BiMap<Long, String> partyMembers = HashBiMap.create();
 	public HashMap<Integer, Set<Integer>> worldsActive = new HashMap<>();
+
+	public HashMap<Integer, Set<RespawnData>> respawnsActive = new HashMap<>();
 
 	Instant killStartTime,
 			currentStartTime = null;
@@ -142,6 +151,9 @@ public class BoostPerformancePlugin extends Plugin
 		PerformanceStats.Clear(this);
 		utils = new Utils(this);
 
+		overlayManager.add(overlay);
+		overlay.CacheConfigs();
+
 		wsClient.registerMessage(BoostPerformanceSpawnUpdate.class);
 		wsClient.registerMessage(BoostPerformanceDespawnUpdate.class);
 		wsClient.registerMessage(BoostPerformanceSnipeUpdate.class);
@@ -164,6 +176,8 @@ public class BoostPerformancePlugin extends Plugin
 		wsClient.unregisterMessage(BoostPerformanceDespawnUpdate.class);
 		wsClient.unregisterMessage(BoostPerformanceSnipeUpdate.class);
 		wsClient.unregisterMessage(BoostPerformanceMemberUpdate.class);
+
+		overlayManager.remove(overlay);
 
 		clientToolbar.removeNavigation(navButton);
 
@@ -485,6 +499,7 @@ public class BoostPerformancePlugin extends Plugin
 		if(CanSpawn(world,spawnId))
 		{
 			SetWorldActive(world,spawnId);
+			SetRespawnActive(world,spawnId,false);
 			//System.out.println("spawn "+world+":"+spawnId);
 		}
 	}
@@ -576,6 +591,7 @@ public class BoostPerformancePlugin extends Plugin
 		this.worldOfRecentKill = world;
 
 		SetWorldInactive(world,spawnId);
+		SetRespawnActive(world,spawnId,true);
 
 		String killMessage = "";
 
@@ -759,6 +775,20 @@ public class BoostPerformancePlugin extends Plugin
 	}
 
 	/**
+	 * Track that a boss has a respawn timer in a specific world
+	 */
+	public void SetRespawnActive(int worldId, int id, boolean active) {
+		RespawnData respawnData = new RespawnData(id);
+		if(respawnData.respawnLocation == null)
+			return;
+
+		if(active)
+			respawnsActive.computeIfAbsent(worldId, k -> new HashSet<>()).add(respawnData);
+		else
+			respawnsActive.computeIfAbsent(worldId, k -> new HashSet<>()).remove(respawnData);
+	}
+
+	/**
 	 * Under valid conditions, attempt to send packet of a boss dying
 	 */
 	@Subscribe
@@ -938,6 +968,12 @@ public class BoostPerformancePlugin extends Plugin
 			boostPerformancePanel.SetDuration(PERFORMANCE_SECTION.CURRENT,false);
 			boostPerformancePanel.SetDuration(PERFORMANCE_SECTION.OVERALL,false);
 		}
+
+		for (Set<RespawnData> respawnSet : respawnsActive.values()) {
+			for (RespawnData data : respawnSet) {
+				data.decrementRemainingTicks();
+			}
+		}
 	}
 	/**
 	 * User changed Falloff settings, update duration
@@ -955,6 +991,7 @@ public class BoostPerformancePlugin extends Plugin
 			boostPerformancePanel.SetDuration(PERFORMANCE_SECTION.OVERALL,config.getPreventFallOff());
 		}
 
+		overlay.CacheConfigs();
 	}
 
 }
