@@ -815,6 +815,13 @@ public class BoostPerformancePlugin extends Plugin
 		if(!BossData.IsValidDeath(npc))
 			return;
 
+		Player localPlayer = client.getLocalPlayer();
+		if(localPlayer == null)
+			return;
+
+		if(!CanSeeNpc(localPlayer, npc))
+			return;
+
 		/**FAILSAFE:
 		 * process locally prior to party messages, prevents issues when party down/slow
 		 * additionally makes plugin work without party if desired
