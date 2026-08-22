@@ -53,6 +53,7 @@ import java.util.concurrent.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import static com.boostperformance.BoostPerformanceConfig.INFOBOX_TYPE;
 
 @Slf4j
 @PluginDescriptor(
@@ -129,6 +130,11 @@ public class BoostPerformancePlugin extends Plugin
 	Duration totalPausedDuration = Duration.ZERO;//needs a rename, its the total paused of current, not to be confused with overall total
 	int pausedKCs = 0;
 
+	boolean configShowKCInfobox,configAlwaysShow,configIncludeSnipe;
+	int configHideBeforeKC,configShowWithinKC;
+
+	INFOBOX_TYPE configInfoDisplay;
+
 	@Provides
 	BoostPerformanceConfig provideConfig(ConfigManager configManager)
 	{
@@ -153,6 +159,7 @@ public class BoostPerformancePlugin extends Plugin
 
 		overlayManager.add(overlay);
 		overlay.CacheConfigs();
+		CacheConfigs();
 
 		wsClient.registerMessage(BoostPerformanceSpawnUpdate.class);
 		wsClient.registerMessage(BoostPerformanceDespawnUpdate.class);
@@ -184,6 +191,16 @@ public class BoostPerformancePlugin extends Plugin
 		bossDataExecutorService.shutdown();
 		bossDataExecutorService = null;
 	}
+
+	void CacheConfigs(){
+		configShowKCInfobox = config.showInfobox();
+		configAlwaysShow = config.alwaysShowKC();
+		configIncludeSnipe = config.includeSnipes();
+		configHideBeforeKC = config.hideBeforeKC();
+		configShowWithinKC = config.showWithinKC();
+		configInfoDisplay = config.infoDisplay();
+	}
+
 	/**
 	 * Grab up to date EHB rates from github IO page
 	 * allows data to stay up to date without redundant update PRs
@@ -999,6 +1016,7 @@ public class BoostPerformancePlugin extends Plugin
 		}
 
 		overlay.CacheConfigs();
+		CacheConfigs();
 	}
 
 }
