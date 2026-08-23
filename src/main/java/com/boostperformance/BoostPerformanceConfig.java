@@ -12,8 +12,6 @@ import java.awt.*;
 @ConfigGroup("boostperformance")
 public interface BoostPerformanceConfig extends Config
 {
-    enum INFOBOX_TYPE { CURRENT,OVERALL}
-
     @ConfigSection(name="General", description="General settings", position=1, closedByDefault=false)
     String generalSection = "general";
 
@@ -154,9 +152,9 @@ public interface BoostPerformanceConfig extends Config
             position = 11,
             section = infoboxSection
     )
-    default INFOBOX_TYPE infoDisplay()
+    default BoostPerformancePlugin.PERFORMANCE_SECTION infoDisplay()
     {
-        return INFOBOX_TYPE.CURRENT;
+        return BoostPerformancePlugin.PERFORMANCE_SECTION.CURRENT;
     }
 
     @ConfigItem(
@@ -172,22 +170,10 @@ public interface BoostPerformanceConfig extends Config
     }
 
     @ConfigItem(
-            keyName = "showWithinKCC",
-            name = "Show Within KC",
-            description = "Only shows when within X kc every 50, (i.e value of 5 will show between 45-55, 95-105 etc)",
-            position = 13,
-            section = infoboxSection
-    )
-    default int showWithinKC()
-    {
-        return 5;
-    }
-
-    @ConfigItem(
             keyName = "alwaysShowKC",
             name = "Always Show KC",
             description = "Ignores previous two settings, permanently shows kc (like staring at a clock but you do you)",
-            position = 14,
+            position = 13,
             section = infoboxSection
     )
     default boolean alwaysShowKC()
@@ -199,12 +185,12 @@ public interface BoostPerformanceConfig extends Config
             keyName = "includeSnipes",
             name = "Include Snipes",
             description = "Include snipes as part of the kc shown (true kc)",
-            position = 15,
+            position = 14,
             section = infoboxSection
     )
     default boolean includeSnipes()
     {
-        return true;
+        return false;
     }
 
 }

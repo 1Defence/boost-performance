@@ -24,6 +24,7 @@ import net.runelite.client.eventbus.Subscribe;
 import net.runelite.client.events.ConfigChanged;
 import net.runelite.client.events.PartyChanged;
 import net.runelite.client.events.RuneScapeProfileChanged;
+import net.runelite.client.game.ItemManager;
 import net.runelite.client.party.PartyService;
 import net.runelite.client.party.WSClient;
 import net.runelite.client.party.events.UserJoin;
@@ -33,6 +34,7 @@ import net.runelite.client.plugins.PluginDescriptor;
 import net.runelite.client.ui.ClientToolbar;
 import net.runelite.client.ui.NavigationButton;
 import net.runelite.client.ui.overlay.OverlayManager;
+import net.runelite.client.ui.overlay.infobox.InfoBoxManager;
 import net.runelite.client.util.ExecutorServiceExceptionLogger;
 import net.runelite.client.util.ImageUtil;
 import net.runelite.client.util.Text;
@@ -48,12 +50,11 @@ import java.time.Instant;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-
-import static com.boostperformance.BoostPerformanceConfig.INFOBOX_TYPE;
 
 @Slf4j
 @PluginDescriptor(
@@ -88,6 +89,12 @@ public class BoostPerformancePlugin extends Plugin
 
 	@Inject
 	private RespawnOverlay overlay;
+
+	@Inject
+	private InfoBoxManager infoBoxManager;
+
+	@Inject
+	private ItemManager itemManager;
 
 	final Color BAD_HIGHLIGHT = new Color(90,90,90);
 	final Color GOOD_HIGHLIGHT = new Color(239,16,32);
@@ -131,9 +138,9 @@ public class BoostPerformancePlugin extends Plugin
 	int pausedKCs = 0;
 
 	boolean configShowKCInfobox,configAlwaysShow,configIncludeSnipe;
-	int configHideBeforeKC,configShowWithinKC;
+	int configHideBeforeKC;
 
-	INFOBOX_TYPE configInfoDisplay;
+	PERFORMANCE_SECTION configInfoDisplay;
 
 	@Provides
 	BoostPerformanceConfig provideConfig(ConfigManager configManager)
@@ -197,9 +204,38 @@ public class BoostPerformancePlugin extends Plugin
 		configAlwaysShow = config.alwaysShowKC();
 		configIncludeSnipe = config.includeSnipes();
 		configHideBeforeKC = config.hideBeforeKC();
-		configShowWithinKC = config.showWithinKC();
 		configInfoDisplay = config.infoDisplay();
 	}
+
+	void CreateInfoBox(){
+		if(!configShowKCInfobox)
+			return;
+
+		if (GetInfoBox().isEmpty())
+		{
+			KillcountInfoBox kcInfobox = new KillcountInfoBox(itemManager.getImage(ItemID.DAGANNOTH_BONES), this);
+			infoBoxManager.addInfoBox(kcInfobox);
+		}
+	}
+
+	void RemoveInfoBox(){
+		Optional<KillcountInfoBox> kcInfoboxOpt = GetInfoBox();
+
+		if (kcInfoboxOpt.isPresent())
+		{
+			KillcountInfoBox kcInfobox = kcInfoboxOpt.get();
+			infoBoxManager.removeInfoBox(kcInfobox);
+		}
+
+	}
+
+	Optional<KillcountInfoBox> GetInfoBox(){
+		return infoBoxManager.getInfoBoxes().stream()
+				.filter(KillcountInfoBox.class::isInstance)
+				.map(KillcountInfoBox.class::cast)
+				.findAny();
+	}
+
 
 	/**
 	 * Grab up to date EHB rates from github IO page
@@ -671,6 +707,8 @@ public class BoostPerformancePlugin extends Plugin
 					.build());
 		}
 
+		CreateInfoBox();
+
 		killStartTime = Instant.now();
 		this.worldOfPreviousKill = world;
 
@@ -1017,6 +1055,16 @@ public class BoostPerformancePlugin extends Plugin
 
 		overlay.CacheConfigs();
 		CacheConfigs();
+
+		if(configShowKCInfobox){
+			if(client.getGameState() == GameState.LOGGED_IN && utils.GetKC(configInfoDisplay,configIncludeSnipe) > 0)
+			{
+				CreateInfoBox();
+			}
+		}else{
+			RemoveInfoBox();
+		}
+
 	}
 
 }

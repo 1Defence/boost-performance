@@ -197,6 +197,13 @@ public class Utils
         return current ? plugin.currentBossKills : PerformanceStats.overallStats.kc+plugin.currentBossKills;
     }
     /**
+     * Get true kc of section (including ignored kc and optionally snipes)
+     */
+    public int GetKC(PERFORMANCE_SECTION section, boolean includeSnipes){
+        return (GetKC(section) + GetIgnoredKC(section)) + (includeSnipes ? GetSnipes(section) : 0);
+    }
+
+    /**
      * Get Snipes of a given section
      * overall includes current
      */
