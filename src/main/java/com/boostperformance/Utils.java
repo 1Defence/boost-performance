@@ -200,7 +200,7 @@ public class Utils
      * Get true kc of section (including ignored kc and optionally snipes)
      */
     public int GetKC(PERFORMANCE_SECTION section, boolean includeSnipes){
-        return (GetKC(section) + GetIgnoredKC(section)) + (includeSnipes ? GetSnipes(section) : 0);
+        return (GetKC(section) + GetIgnoredKC(section)) - (includeSnipes ? 0 : GetSnipes(section));
     }
 
     /**
